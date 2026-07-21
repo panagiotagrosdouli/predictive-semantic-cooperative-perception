@@ -1,0 +1,26 @@
+dataset:
+  name: OPV2V
+  root: datasets/opv2v
+  split: validate
+
+prediction:
+  horizon_seconds: 2.0
+  timestep_seconds: 0.1
+
+risk:
+  critical_distance_m: 6.0
+  time_to_collision_cap_s: 8.0
+  uncertainty_weight: 0.15
+
+scheduler:
+  strategy: predictive_risk
+  message_budget: 5
+  weights:
+    collision_risk: 0.55
+    proximity: 0.25
+    uncertainty: 0.10
+    closing_speed: 0.10
+
+simulation:
+  random_seed: 7
+  num_objects: 16
