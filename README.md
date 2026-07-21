@@ -30,6 +30,8 @@ The first prototype works directly with object tracks/annotations so that the re
 
 The initial benchmark is **OPV2V**, an open simulated dataset for vehicle-to-vehicle cooperative perception. Dataset files are intentionally excluded from Git. See [`datasets/README.md`](datasets/README.md) and [`scripts/download_opv2v.sh`](scripts/download_opv2v.sh).
 
+OPV2V stores each scenario as multiple numeric vehicle folders. Each timestamp has a YAML metadata file alongside its point cloud and camera frames. The lightweight loader in `src/opv2v.py` reads only these YAML annotations, so initial scheduler experiments do not require Open3D, PyTorch, or loading the large sensor files.
+
 ## Baselines
 
 - `all`: transmit every visible object.
@@ -57,13 +59,25 @@ pytest
 
 The demo uses deterministic synthetic tracks and validates the full scheduling pipeline without requiring the large dataset download.
 
+## Inspect downloaded OPV2V metadata
+
+After extracting a split under `datasets/opv2v`, inspect a few real annotation frames with:
+
+```bash
+python -m src.inspect_opv2v datasets/opv2v/train --max-agents 2 --max-frames 5
+```
+
+The command reports observer poses, relative object positions, velocity values, and repeated object IDs. It reads only `*.yaml` files. This makes it useful for checking a partial OPV2V download before running larger experiments.
+
+The current coordinate conversion translates world positions to the observer origin. Exact ego-yaw rotation and cross-agent geometric fusion are intentionally listed as the next implementation step.
+
 ## Repository structure
 
 ```text
 configs/            Experiment configuration
 datasets/           Dataset instructions; raw data is ignored
 scripts/            Dataset helpers
-src/                Prediction, risk, scheduling and metrics
+src/                Loading, prediction, risk, scheduling and metrics
 tests/              Unit tests
 results/             Generated experiment outputs
 ```
@@ -74,11 +88,12 @@ Early-stage research prototype. It is not yet a complete 6G network simulator or
 
 ## Planned work
 
-1. Parse OPV2V object annotations and agent poses.
+1. Parse OPV2V object annotations and agent poses. **Initial YAML loader complete.**
 2. Build temporal object tracks across frames.
-3. Evaluate predictive-risk scheduling against communication baselines.
-4. Add packet budget, delay and loss models.
-5. Validate on a real-world cooperative-perception dataset.
+3. Rotate annotations into the exact observer coordinate frame and merge cross-agent observations.
+4. Evaluate predictive-risk scheduling against communication baselines.
+5. Add packet budget, delay and loss models.
+6. Validate on a real-world cooperative-perception dataset.
 
 ## Citation
 
